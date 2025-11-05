@@ -37,8 +37,7 @@ bool rehash(hash_t *hash)
 		return false;
 
 	size_t nueva_capacidad = hash->capacidad * 2;
-	lista_t **nueva_tabla =
-		(lista_t **)calloc(nueva_capacidad, sizeof(lista_t *));
+	lista_t **nueva_tabla = calloc(nueva_capacidad, sizeof(lista_t *));
 	if (!nueva_tabla)
 		return false;
 
@@ -90,7 +89,7 @@ hash_t *hash_crear(size_t capacidad_inicial)
 	hash->capacidad = capacidad_inicial;
 	hash->cantidad = 0;
 
-	hash->tabla = (lista_t **)calloc(hash->capacidad, sizeof(lista_t *));
+	hash->tabla = calloc(hash->capacidad, sizeof(lista_t *));
 	if (!hash->tabla) {
 		free(hash);
 		return NULL;
@@ -152,11 +151,11 @@ bool hash_insertar(hash_t *hash, char *clave, void *valor, void **encontrado)
 		return true;
 	}
 
-	par_t *nuevo_par = (par_t *)malloc(sizeof(par_t));
+	par_t *nuevo_par = malloc(sizeof(par_t));
 	if (!nuevo_par)
 		return false;
 
-	nuevo_par->clave = (char *)malloc(strlen(clave) + 1);
+	nuevo_par->clave = malloc(strlen(clave) + 1);
 	if (!nuevo_par->clave) {
 		free(nuevo_par);
 		return false;
@@ -186,7 +185,7 @@ void *hash_buscar(hash_t *hash, char *clave)
 	size_t indice = funcion_hash(clave, hash->capacidad);
 	lista_t *bucket = hash->tabla[indice];
 	for (size_t i = 0; i < lista_cantidad(bucket); i++) {
-		par_t *par = (par_t *)lista_buscar_elemento(bucket, i);
+		par_t *par = lista_buscar_elemento(bucket, i);
 		if (strcmp(par->clave, clave) == 0)
 			return par->valor;
 	}
@@ -208,7 +207,7 @@ void *hash_quitar(hash_t *hash, char *clave)
 	lista_t *bucket = hash->tabla[indice];
 
 	for (size_t i = 0; i < lista_cantidad(bucket); i++) {
-		par_t *par = (par_t *)lista_buscar_elemento(bucket, i);
+		par_t *par = lista_buscar_elemento(bucket, i);
 		if (strcmp(par->clave, clave) == 0) {
 			par_t *eliminar = lista_eliminar_elemento(bucket, i);
 			void *valor = eliminar->valor;
@@ -229,14 +228,21 @@ size_t hash_iterar(hash_t *hash, bool (*f)(char *, void *, void *), void *ctx)
 	size_t cantidad = 0;
 
 	for (size_t i = 0; i < hash->capacidad; i++) {
-		lista_t *bucket = hash->tabla[i];
+		lista_iterador_t *it = lista_iterador_crear(hash->tabla[i]);
+		if (!it)
+			return cantidad;
 
-		for (size_t j = 0; j < lista_cantidad(bucket); j++) {
-			par_t *par = (par_t *)lista_buscar_elemento(bucket, j);
+		while (lista_iterador_hay_mas_elementos(it)) {
+			par_t *par = lista_iterador_obtener_actual(it);
 			cantidad++;
-			if (!f(par->clave, par->valor, ctx))
+			if (!f(par->clave, par->valor, ctx)) {
+				lista_iterador_destruir(it);
 				return cantidad;
+			}
+
+			lista_iterador_siguiente(it);
 		}
+		lista_iterador_destruir(it);
 	}
 
 	return cantidad;

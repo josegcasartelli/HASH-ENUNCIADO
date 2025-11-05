@@ -16,11 +16,11 @@ typedef struct {
 
 bool buscar_pokemon_por_id(char *clave, void *valor, void *extra)
 {
-	ctx_busqueda_id_t *ctx = extra;
+	ctx_busqueda_id_t *contexto = extra;
 	struct pokemon *p = valor;
 
-	if (p->id == ctx->id) {
-		ctx->encontrado = p;
+	if (p->id == contexto->id) {
+		contexto->encontrado = p;
 		return false;
 	}
 	return true;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	hash_t *hash = NULL;
 
 	if (strcmp(tipo, "nombre") == 0) {
-		hash = hash_crear(10);
+		hash = hash_crear(3);
 		if (!hash) {
 			fprintf(stderr, "error al crear hahs");
 			tp1_destruir(tp);
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 		}
 
 	} else if (strcmp(tipo, "id") == 0) {
-		hash = hash_crear(100);
+		hash = hash_crear(3);
 		if (!hash) {
 			fprintf(stderr, "error al crear hash");
 			tp1_destruir(tp);

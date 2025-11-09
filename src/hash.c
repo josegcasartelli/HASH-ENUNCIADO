@@ -1,7 +1,7 @@
 #include "hash.h"
+#include "hash_interno.h"
 #include "lista.h"
 #include "aux.h"
-#include "hash_interno.h"
 #include <string.h>
 #include <stdlib.h>
 

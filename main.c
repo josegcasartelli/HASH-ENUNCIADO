@@ -1,7 +1,7 @@
 #include "src/hash.h"
 #include "src/tp1.h"
 #include "src/aux.h"
-#include "hash_interno.h"
+#include "src/hash_interno.h"
 #include <stdio.h>
 #include <string.h>
 

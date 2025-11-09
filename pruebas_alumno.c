@@ -12,7 +12,7 @@ void pruebas_null()
 	pa2m_nuevo_grupo("Pruebas con NULL");
 
 	pa2m_afirmar(hash_crear(0) == NULL,
-		     "Crear hash con sin capacidad devuelve NULL");
+		     "Crear hash sin capacidad devuelve NULL");
 	pa2m_afirmar(hash_cantidad(NULL) == 0, "Cantidad de un hash null es 0");
 	pa2m_afirmar(!hash_insertar(NULL, "clave", NULL, NULL),
 		     "Insertar en hash NULL falla");
@@ -75,8 +75,8 @@ void pruebas_contiene_y_quitar()
 	hash_insertar(hash, clave1, &v1, NULL);
 	hash_insertar(hash, clave2, &v2, NULL);
 
-	pa2m_afirmar(hash_contiene(hash, clave1), "hash conetiene clave 1");
-	pa2m_afirmar(hash_contiene(hash, clave2), "hash conetiene clave 2");
+	pa2m_afirmar(hash_contiene(hash, clave1), "hash contiene clave 1");
+	pa2m_afirmar(hash_contiene(hash, clave2), "hash contiene clave 2");
 
 	void *eliminado = hash_quitar(hash, clave1);
 	pa2m_afirmar(eliminado == &v1, "Quitar devuelve el valor correcto");

@@ -1,30 +1,9 @@
 #include "src/hash.h"
 #include "src/tp1.h"
+#include "src/aux.h"
+#include "hash_interno.h"
 #include <stdio.h>
 #include <string.h>
-
-bool insertar_en_hash(struct pokemon *pokemon, void *hash_void)
-{
-	hash_t *hash = hash_void;
-	return hash_insertar(hash, pokemon->nombre, pokemon, NULL);
-}
-
-typedef struct {
-	int id;
-	struct pokemon *encontrado;
-} ctx_busqueda_id_t;
-
-bool buscar_pokemon_por_id(char *clave, void *valor, void *extra)
-{
-	ctx_busqueda_id_t *contexto = extra;
-	struct pokemon *p = valor;
-
-	if (p->id == contexto->id) {
-		contexto->encontrado = p;
-		return false;
-	}
-	return true;
-}
 
 int main(int argc, char *argv[])
 {

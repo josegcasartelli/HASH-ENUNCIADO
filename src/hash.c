@@ -1,78 +1,9 @@
 #include "hash.h"
 #include "lista.h"
+#include "aux.h"
+#include "hash_interno.h"
 #include <string.h>
 #include <stdlib.h>
-
-struct hash {
-	lista_t **tabla;
-	size_t cantidad;
-	size_t capacidad;
-};
-
-struct par {
-	char *clave;
-	void *valor;
-};
-
-typedef struct par par_t;
-
-int comparar_claves(const void *a, const void *b)
-{
-	const par_t *par1 = a;
-	const par_t *par2 = b;
-	return strcmp(par1->clave, par2->clave);
-}
-
-size_t funcion_hash(char *clave, size_t capacidad)
-{
-	size_t hash = 5381;
-	while (*clave)
-		hash = hash * 33 + (unsigned char)(*clave++);
-	return hash % capacidad;
-}
-
-bool rehash(hash_t *hash)
-{
-	if (!hash)
-		return false;
-
-	size_t nueva_capacidad = hash->capacidad * 2;
-	lista_t **nueva_tabla = calloc(nueva_capacidad, sizeof(lista_t *));
-	if (!nueva_tabla)
-		return false;
-
-	for (size_t i = 0; i < nueva_capacidad; i++) {
-		nueva_tabla[i] = lista_crear();
-		if (!nueva_tabla[i]) {
-			for (size_t j = 0; j < i; j++)
-				lista_destruir(nueva_tabla[j]);
-			free(nueva_tabla);
-			return false;
-		}
-	}
-
-	for (size_t i = 0; i < hash->capacidad; i++) {
-		lista_t *viejo_bucket = hash->tabla[i];
-		while (lista_cantidad(viejo_bucket) > 0) {
-			par_t *par = (par_t *)lista_eliminar_elemento(
-				viejo_bucket, 0);
-			size_t nuevo_indice =
-				funcion_hash(par->clave, nueva_capacidad);
-			if (!lista_agregar(nueva_tabla[nuevo_indice], par)) {
-				for (size_t k = 0; k < nueva_capacidad; k++)
-					lista_destruir(nueva_tabla[k]);
-				free(nueva_tabla);
-				return false;
-			}
-		}
-		lista_destruir(viejo_bucket);
-	}
-	free(hash->tabla);
-	hash->tabla = nueva_tabla;
-	hash->capacidad = nueva_capacidad;
-
-	return true;
-}
 
 hash_t *hash_crear(size_t capacidad_inicial)
 {
@@ -250,23 +181,7 @@ size_t hash_iterar(hash_t *hash, bool (*f)(char *, void *, void *), void *ctx)
 
 void hash_destruir(hash_t *hash)
 {
-	if (!hash)
-		return;
-
-	for (size_t i = 0; i < hash->capacidad; i++) {
-		lista_t *bucket = hash->tabla[i];
-
-		while (lista_cantidad(bucket) > 0) {
-			par_t *par =
-				(par_t *)lista_eliminar_elemento(bucket, 0);
-			free(par->clave);
-			free(par);
-		}
-		lista_destruir(bucket);
-	}
-
-	free(hash->tabla);
-	free(hash);
+	hash_destruir_todo(hash, NULL);
 }
 
 void hash_destruir_todo(hash_t *hash, void (*destructor)(void *))
